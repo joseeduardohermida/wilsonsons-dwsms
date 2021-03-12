@@ -99,15 +99,48 @@ def load_csv_mongodb():
         file_res        = os.path.join(cdir, arq)
         
         print('lendo o csv')
-        dataframe = pd.read_csv(file_res, encoding='latin1', sep=';')
+        df = pd.read_csv(file_res, encoding='latin1', sep=';')
         
         #-- undefined
         print('fazendo replace dos valores...')
-        dataframe.loc[(dataframe.cbo =='undefined')   , 'cbo'   ] = None
-        dataframe.loc[(dataframe.origem =='undefined'), 'origem'] = None
+
+        #df.replace(['  ']       , ''  , inplace=True)
+        #df.replace(['undefined'], None, inplace=True)
+        
+        df.replace(['undefined'],pd.NA, inplace=True)
+        #df.replace([null],None       , inplace=True)        
+
+        #df["ÿid"].               replace({df["ÿid"]               : df["ÿid"]}               , inplace=True)
+        #df["dataNotificacao"].   replace({df["dataNotificacao"]   : df["dataNotificacao"]}   , inplace=True)
+        
+        #df['dataNotificacao']   = df['dataNotificacao'].replace(['old value'],'new value')
+        
+        #df["dataInicioSintomas"].replace({df["dataInicioSintomas"]: df["dataInicioSintomas"]}, inplace=True)
+        #df["dataNascimento"].    replace({df["dataNascimento"]    : df["dataNascimento"]}    , inplace=True)
+        #df["sintomas"].          replace({df["sintomas"]          : df["sintomas"]}          , inplace=True)
+        ##df["profissionalSaude"]. replace({df["profissionalSaude"] : df["profissionalSaude"]} , inplace=True)
+        #df["cbo"].               replace({df["cbo"]               : df["cbo"]}               , inplace=True)   
+        
+        # df["condicoes"].replace({df["dataNotificacao"]: check_strip(df["dataNotificacao"]}, inplace=True)
+        # df["estadoTeste"].replace({df["dataNotificacao"]: check_strip(df["dataNotificacao"]}, inplace=True)   
+        # df["dataTeste"].replace({df["dataNotificacao"]: check_strip(df["dataNotificacao"]}, inplace=True)
+        # df["tipoTeste"].replace({df["dataNotificacao"]: check_strip(df["dataNotificacao"]}, inplace=True)
+        # df["resultadoTeste"].replace({df["dataNotificacao"]: check_strip(df["dataNotificacao"]}, inplace=True)
+        # df["paisOrigem"].replace({df["dataNotificacao"]: check_strip(df["dataNotificacao"]}, inplace=True)  
+        # df["sexo"].replace({df["dataNotificacao"]: check_strip(df["dataNotificacao"]}, inplace=True)    
+        # df["estado"].replace({df["dataNotificacao"]: check_strip(df["dataNotificacao"]}, inplace=True)
+        # df["estadoIBGE"].replace({df["dataNotificacao"]: check_strip(df["dataNotificacao"]}, inplace=True)
+        # df["municipio"].replace({df["dataNotificacao"]: check_strip(df["dataNotificacao"]}, inplace=True)
+        # df["municipioIBGE"].replace({df["dataNotificacao"]: check_strip(df["dataNotificacao"]}, inplace=True)
+        # df["origem"].replace({df["dataNotificacao"]: check_strip(df["dataNotificacao"]}, inplace=True)
+        # df["cnes"].replace({df["dataNotificacao"]: check_strip(df["dataNotificacao"]}, inplace=True)
+        # df["estadoNotificacao"].replace({df["dataNotificacao"]: check_strip(df["dataNotificacao"]}, inplace=True)
+        # df["estadoNotificacaoIBGE"].replace({df["dataNotificacao"]: check_strip(df["dataNotificacao"]}, inplace=True)
+        # df["municipioNotificacao"].replace({df["dataNotificacao"]: check_strip(df["dataNotificacao"]}, inplace=True)
+        # df["municipioNotificacaoIBGE"].replace({df["dataNotificacao"]: check_strip(df["dataNotificacao"]}, inplace=True)
         
         print('convertendo df para json')
-        data_json = json.loads(dataframe.to_json(orient='records'))
+        data_json = json.loads(df.to_json(orient='records'))
         
         print('gravando no mongo')
         dao = mongodao.MongoDBDAO(MONGO_DB_NAME)
@@ -266,102 +299,102 @@ def get_row_datasus_covid19_to ( row, temp : bool ):
     
     return doc
 
-def get_json_validator_create_doc ():
-    json_validator = { 
-                        'validator': { 
-                                        '$jsonSchema' : {
-                                                        'bsonType' : "object",
-                                                        'required': [ "dataNotificacao" ],
-                                                        'properties': {
-                                                                        'yid': {
-                                                                            'bsonType'    : 'string',
-                                                                            'description' : 'yid'
-                                                                        },
-                                                                        'dataNotificacao': {
-                                                                            'bsonType' : 'timestamp',
-                                                                            'description': 'dataNotificacao'
-                                                                        },
-                                                                        'dataInicioSintomas': {
-                                                                            'bsonType' : 'timestamp',
-                                                                            'description': 'dataInicioSintomas'
-                                                                        },
-                                                                        'dataNascimento': {
-                                                                            'bsonType' : 'timestamp',
-                                                                            'description': 'dataNascimento'
-                                                                        },
-                                                                        'sintomas': {
-                                                                            'bsonType' : 'string',
-                                                                            'description': 'sintomas'
-                                                                        },
-                                                                        'profissionalSaude': {
-                                                                            'bsonType' : 'string',
-                                                                            'description': 'profissionalSaude'
-                                                                        },
-                                                                        'cbo': {
-                                                                            'bsonType' : 'string',
-                                                                            'description': 'cbo'
-                                                                        },
-                                                                        'estadoTeste': {
-                                                                            'bsonType' : 'string',
-                                                                            'description': 'estadoTeste'
-                                                                        },
-                                                                        'dataTeste': {
-                                                                            'bsonType' : 'string',
-                                                                            'description': 'sintomas'
-                                                                        },
-                                                                        'tipoTeste': {
-                                                                            'bsonType' : 'string',
-                                                                            'description': 'tipoTeste'
-                                                                        },
-                                                                        'paisOrigem': {
-                                                                            'bsonType' : 'string',
-                                                                            'description': 'paisOrigem'
-                                                                        },
-                                                                        'sexo': {
-                                                                            'bsonType' : 'string',
-                                                                            'description': 'sexo'
-                                                                        },
-                                                                        'estado': {
-                                                                            'bsonType' : 'string',
-                                                                            'description': 'estado'
-                                                                        },
-                                                                        'estadoIBGE': {
-                                                                            'bsonType' : 'long',
-                                                                            'description': 'estadoIBGE'
-                                                                        },
-                                                                        'municipio': {
-                                                                            'bsonType' : 'string',
-                                                                            'description': 'municipio'
-                                                                        },
-                                                                        'origem': {
-                                                                            'bsonType' : 'string',
-                                                                            'description': 'origem'
-                                                                        },
-                                                                        'cnes': {
-                                                                            'bsonType' : 'string',
-                                                                            'description': 'cnes'
-                                                                        },
-                                                                        'estadoNotificacao': {
-                                                                            'bsonType' : 'string',
-                                                                            'description': 'estadoNotificacao'
-                                                                        },
-                                                                        'estadoNotificacaoIBGE': {
-                                                                            'bsonType' : 'long',
-                                                                            'description': 'estadoNotificacaoIBGE'
-                                                                        },
-                                                                        'municipioNotificacao': {
-                                                                            'bsonType' : 'string',
-                                                                            'description': 'municipioNotificacao'
-                                                                        },
-                                                                        'municipioNotificacaoIBGE': {
-                                                                            'bsonType' : 'long',
-                                                                            'description': 'municipioNotificacaoIBGE'
-                                                                        }
-                                                                    }
-                                                        } 
-                                     }
-                      }
-    return json_validator
+# def get_json_validator_create_doc ():
+#     json_validator = { 
+#                         'validator': { 
+#                                         '$jsonSchema' : {
+#                                                         'bsonType' : "object",
+#                                                         'required': [ "dataNotificacao" ],
+#                                                         'properties': {
+#                                                                         'yid': {
+#                                                                             'bsonType'    : 'string',
+#                                                                             'description' : 'yid'
+#                                                                         },
+#                                                                         'dataNotificacao': {
+#                                                                             'bsonType' : 'timestamp',
+#                                                                             'description': 'dataNotificacao'
+#                                                                         },
+#                                                                         'dataInicioSintomas': {
+#                                                                             'bsonType' : 'timestamp',
+#                                                                             'description': 'dataInicioSintomas'
+#                                                                         },
+#                                                                         'dataNascimento': {
+#                                                                             'bsonType' : 'timestamp',
+#                                                                             'description': 'dataNascimento'
+#                                                                         },
+#                                                                         'sintomas': {
+#                                                                             'bsonType' : 'string',
+#                                                                             'description': 'sintomas'
+#                                                                         },
+#                                                                         'profissionalSaude': {
+#                                                                             'bsonType' : 'string',
+#                                                                             'description': 'profissionalSaude'
+#                                                                         },
+#                                                                         'cbo': {
+#                                                                             'bsonType' : 'string',
+#                                                                             'description': 'cbo'
+#                                                                         },
+#                                                                         'estadoTeste': {
+#                                                                             'bsonType' : 'string',
+#                                                                             'description': 'estadoTeste'
+#                                                                         },
+#                                                                         'dataTeste': {
+#                                                                             'bsonType' : 'string',
+#                                                                             'description': 'sintomas'
+#                                                                         },
+#                                                                         'tipoTeste': {
+#                                                                             'bsonType' : 'string',
+#                                                                             'description': 'tipoTeste'
+#                                                                         },
+#                                                                         'paisOrigem': {
+#                                                                             'bsonType' : 'string',
+#                                                                             'description': 'paisOrigem'
+#                                                                         },
+#                                                                         'sexo': {
+#                                                                             'bsonType' : 'string',
+#                                                                             'description': 'sexo'
+#                                                                         },
+#                                                                         'estado': {
+#                                                                             'bsonType' : 'string',
+#                                                                             'description': 'estado'
+#                                                                         },
+#                                                                         'estadoIBGE': {
+#                                                                             'bsonType' : 'long',
+#                                                                             'description': 'estadoIBGE'
+#                                                                         },
+#                                                                         'municipio': {
+#                                                                             'bsonType' : 'string',
+#                                                                             'description': 'municipio'
+#                                                                         },
+#                                                                         'origem': {
+#                                                                             'bsonType' : 'string',
+#                                                                             'description': 'origem'
+#                                                                         },
+#                                                                         'cnes': {
+#                                                                             'bsonType' : 'string',
+#                                                                             'description': 'cnes'
+#                                                                         },
+#                                                                         'estadoNotificacao': {
+#                                                                             'bsonType' : 'string',
+#                                                                             'description': 'estadoNotificacao'
+#                                                                         },
+#                                                                         'estadoNotificacaoIBGE': {
+#                                                                             'bsonType' : 'long',
+#                                                                             'description': 'estadoNotificacaoIBGE'
+#                                                                         },
+#                                                                         'municipioNotificacao': {
+#                                                                             'bsonType' : 'string',
+#                                                                             'description': 'municipioNotificacao'
+#                                                                         },
+#                                                                         'municipioNotificacaoIBGE': {
+#                                                                             'bsonType' : 'long',
+#                                                                             'description': 'municipioNotificacaoIBGE'
+#                                                                         }
+#                                                                     }
+#                                                         } 
+#                                      }
+#                       }
+#     return json_validator
     
     
 
